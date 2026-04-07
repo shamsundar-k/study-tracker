@@ -15,6 +15,7 @@ export interface IItem extends Document {
   status: ItemStatus;
   tags: string[];
   note?: string;
+  archived: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +45,7 @@ const itemSchema = new Schema<IItem>(
     },
     tags: { type: [String], default: [] },
     note: { type: String, trim: true },
+    archived: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

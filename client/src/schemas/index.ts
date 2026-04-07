@@ -55,6 +55,7 @@ const itemBaseSchema = z.object({
   status: z.enum(itemStatuses).default('active'),
   tags: z.array(z.string()).optional().default([]),
   note: z.string().optional(),
+  archived: z.boolean().optional(),
 });
 
 export const itemCreateSchema = itemBaseSchema.refine(

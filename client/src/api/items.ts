@@ -13,6 +13,7 @@ export interface Item {
   status: ItemStatus;
   tags: string[];
   note?: string;
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
 }

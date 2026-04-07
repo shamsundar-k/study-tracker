@@ -6,6 +6,7 @@ import type { Platform, ItemStatus } from '../schemas';
 interface Props {
   item: Item;
   onDeleted: (id: string) => void;
+  onUpdated: (item: Item) => void;
 }
 
 // ── Badge colours ─────────────────────────────────────────────────────────────
@@ -42,9 +43,10 @@ function progressBarColor(status: ItemStatus): string {
   }
 }
 
-export default function ItemCard({ item, onDeleted }: Props) {
+export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${item.name}"?`)) return;
@@ -55,6 +57,18 @@ export default function ItemCard({ item, onDeleted }: Props) {
     } catch (err) {
       console.error('Delete failed:', err);
       setDeleting(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    setArchiving(true);
+    try {
+      const { item: updated } = await itemsApi.update(item._id, { archived: !item.archived });
+      onUpdated(updated);
+    } catch (err) {
+      console.error('Archive failed:', err);
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -83,12 +97,22 @@ export default function ItemCard({ item, onDeleted }: Props) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          {!item.archived && (
+            <button
+              onClick={() => navigate(`/items/${item._id}/edit`)}
+              className="text-xs text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
+              title="Edit"
+            >
+              ✏️
+            </button>
+          )}
           <button
-            onClick={() => navigate(`/items/${item._id}/edit`)}
-            className="text-xs text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
-            title="Edit"
+            onClick={handleArchive}
+            disabled={archiving}
+            className="text-xs text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors disabled:opacity-40"
+            title={item.archived ? 'Unarchive' : 'Archive'}
           >
-            ✏️
+            {item.archived ? '📤' : '📥'}
           </button>
           <button
             onClick={handleDelete}

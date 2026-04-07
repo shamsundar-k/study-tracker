@@ -188,8 +188,15 @@ export default function EditItem() {
                 min={0}
                 max={100}
                 value={values.progress ?? 0}
-                onChange={handleChange}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setValues((prev) => ({
+                    ...prev,
+                    progress: val,
+                    ...(val === 100 ? { status: 'done' } : {}),
+                  }));
+                }}
+                className="w-full cursor-pointer accent-indigo-600"
               />
               {/* Track labels */}
               <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
