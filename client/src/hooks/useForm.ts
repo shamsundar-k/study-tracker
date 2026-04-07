@@ -1,8 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import type { ZodSchema } from 'zod';
+import { type ZodType, type ZodTypeDef } from 'zod';
 
 interface UseFormOptions<T extends Record<string, unknown>> {
-  schema: ZodSchema<T>;
+  // ZodType<Output, Def, Input> — constrain only the output so schemas with
+  // .default() fields (whose input differs from output) are accepted too.
+  schema: ZodType<T, ZodTypeDef, unknown>;
   initial: T;
   onSubmit: (values: T) => Promise<void>;
   onError?: (err: unknown) => void;
