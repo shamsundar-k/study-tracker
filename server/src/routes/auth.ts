@@ -12,10 +12,15 @@ import {
 
 const router = Router();
 
+// In production the frontend and backend are on different subdomains, so the
+// cookie must be SameSite=None + Secure to be sent on cross-origin requests.
+// Locally (development) SameSite=Strict is fine because Vite proxies all /api
+// calls to the same origin.
+const isProd = process.env.NODE_ENV === 'production';
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  sameSite: 'strict' as const,
-  secure: process.env.NODE_ENV === 'production',
+  sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
+  secure: isProd, // SameSite=None requires Secure=true
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
 };
 
