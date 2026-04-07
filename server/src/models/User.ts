@@ -17,7 +17,5 @@ const userSchema = new Schema<IUser>(
   { timestamps: true },
 );
 
-// Unique index on email
-userSchema.index({ email: 1 }, { unique: true });
 
 export const User = model<IUser>('User', userSchema);

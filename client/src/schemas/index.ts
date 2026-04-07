@@ -45,27 +45,27 @@ export const platformTypeMap: Record<Platform, ItemType[]> = {
   'Frontend Masters': ['Course'],
 };
 
-export const itemCreateSchema = z
-  .object({
-    name: z.string().min(1, 'Name is required'),
-    platform: z.enum(platforms),
-    type: z.enum(itemTypes),
-    progress: z.number().int().min(0).max(100).default(0),
-    hours: z.number().min(0).optional(),
-    deadline: z.string().optional(),
-    status: z.enum(itemStatuses).default('active'),
-    tags: z.array(z.string()).optional().default([]),
-    note: z.string().optional(),
-  })
-  .refine(
-    (data) => platformTypeMap[data.platform].includes(data.type),
-    (data) => ({
-      message: `"${data.type}" is not available on ${data.platform}`,
-      path: ['type'],
-    }),
-  );
+const itemBaseSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  platform: z.enum(platforms),
+  type: z.enum(itemTypes),
+  progress: z.number().int().min(0).max(100).default(0),
+  hours: z.number().min(0).optional(),
+  deadline: z.string().optional(),
+  status: z.enum(itemStatuses).default('active'),
+  tags: z.array(z.string()).optional().default([]),
+  note: z.string().optional(),
+});
 
-export const itemUpdateSchema = itemCreateSchema.partial().refine(
+export const itemCreateSchema = itemBaseSchema.refine(
+  (data) => platformTypeMap[data.platform].includes(data.type),
+  (data) => ({
+    message: `"${data.type}" is not available on ${data.platform}`,
+    path: ['type'],
+  }),
+);
+
+export const itemUpdateSchema = itemBaseSchema.partial().refine(
   (data) => {
     if (data.platform && data.type) {
       return platformTypeMap[data.platform].includes(data.type);

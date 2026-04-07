@@ -42,7 +42,7 @@ const itemBaseSchema = z.object({
   type: z.enum(itemTypes),
   progress: z.number().int().min(0).max(100).default(0),
   hours: z.number().min(0).optional(),
-  deadline: z.string().datetime({ offset: true }).optional().or(z.literal('')).or(z.undefined()),
+  deadline: z.string().optional(),
   status: z.enum(itemStatuses).default('active'),
   tags: z.array(z.string().trim()).optional().default([]),
   note: z.string().trim().optional(),

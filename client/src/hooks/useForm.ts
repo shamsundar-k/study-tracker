@@ -22,8 +22,12 @@ export function useForm<T extends Record<string, unknown>>({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    const coercedValue =
-      type === 'number' ? (value === '' ? undefined : Number(value)) : value;
+    let coercedValue: unknown;
+    if (type === 'number' || type === 'range') {
+      coercedValue = value === '' ? undefined : Number(value);
+    } else {
+      coercedValue = value;
+    }
     setValues((prev) => ({ ...prev, [name]: coercedValue }));
   };
 
