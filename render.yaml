@@ -23,6 +23,9 @@ services:
     rootDir: client
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false        # Set to your backend Render URL e.g. https://study-tracker-server.onrender.com
     routes:
       - type: rewrite
         source: /*

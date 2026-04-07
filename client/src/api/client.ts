@@ -1,4 +1,9 @@
-const BASE_URL = '/api';
+// In development Vite proxies /api → localhost:3001 (see vite.config.ts).
+// In production VITE_API_URL must be set to the backend Render URL so the
+// built static bundle knows where to send requests.
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)
+  ? `${import.meta.env.VITE_API_URL as string}/api`
+  : '/api';
 
 type FetchOptions = RequestInit & { json?: unknown };
 
