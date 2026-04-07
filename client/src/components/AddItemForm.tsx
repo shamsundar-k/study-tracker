@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { itemsApi, type Item } from '../api/items';
-import { itemCreateSchema, platforms, itemStatuses, platformTypeMap, type ItemCreateInput } from '../schemas';
+import { itemCreateSchema, platforms, itemStatuses, priorities, platformTypeMap, type ItemCreateInput } from '../schemas';
 import { useForm } from '../hooks/useForm';
 
 interface Props {
@@ -20,6 +20,7 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
         type: 'Course',
         progress: 0,
         status: 'active',
+        priority: 'medium',
         tags: [],
         hours: undefined,
         deadline: '',
@@ -90,8 +91,8 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
           </div>
         </div>
 
-        {/* Progress + Status row */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Progress + Status + Priority row */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className={labelCls}>Progress: {values.progress}%</label>
             <input
@@ -108,6 +109,14 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
             <label className={labelCls}>Status *</label>
             <select name="status" value={values.status} onChange={handleChange} className={inputCls}>
               {itemStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Priority</label>
+            <select name="priority" value={values.priority} onChange={handleChange} className={inputCls}>
+              {priorities.map((p) => (
+                <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+              ))}
             </select>
           </div>
         </div>

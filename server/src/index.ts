@@ -7,6 +7,7 @@ import { join } from 'path';
 
 import authRouter from './routes/auth.js';
 import itemsRouter from './routes/items.js';
+import journalRouter from './routes/journal.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -26,6 +27,7 @@ app.use(cookieParser());
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRouter);
 app.use('/api/items', itemsRouter);
+app.use('/api/journal', journalRouter);
 
 // ── Root status page (dev only — production serves React index.html) ─────────
 if (!isProduction) app.get('/', (_req, res) => {

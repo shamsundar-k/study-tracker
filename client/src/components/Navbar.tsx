@@ -23,6 +23,16 @@ export default function Navbar() {
           📚 Study Tracker
         </Link>
 
+        {/* Nav links */}
+        <div className="flex items-center gap-4">
+          <Link
+            to="/journal"
+            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+          >
+            Journal
+          </Link>
+        </div>
+
         {/* Right side */}
         <div className="flex items-center gap-3">
           {/* Dark mode toggle */}

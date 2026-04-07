@@ -6,6 +6,7 @@ import {
   platforms,
   itemTypes,
   itemStatuses,
+  priorities,
   platformTypeMap,
   type ItemUpdateInput,
 } from '../schemas';
@@ -27,6 +28,7 @@ export default function EditItem() {
         type: 'Course',
         progress: 0,
         status: 'active',
+        priority: 'medium',
         tags: [],
         hours: undefined,
         deadline: '',
@@ -61,6 +63,7 @@ export default function EditItem() {
         hours: item.hours,
         deadline: item.deadline ? item.deadline.split('T')[0] : '',
         status: item.status,
+        priority: item.priority,
         tags: item.tags,
         note: item.note ?? '',
       });
@@ -234,6 +237,39 @@ export default function EditItem() {
                                   transition-colors ${colour}`}
                     >
                       {s}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Priority */}
+            <div>
+              <label className={labelCls}>Priority</label>
+              <div className="flex gap-3">
+                {priorities.map((p) => {
+                  const active = values.priority === p;
+                  const colour =
+                    p === 'low'
+                      ? active
+                        ? 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900/30 dark:border-green-500 dark:text-green-400'
+                        : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-green-400 dark:hover:border-green-600'
+                      : p === 'medium'
+                      ? active
+                        ? 'bg-amber-100 border-amber-500 text-amber-700 dark:bg-amber-900/30 dark:border-amber-500 dark:text-amber-400'
+                        : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-amber-400 dark:hover:border-amber-600'
+                      : active
+                        ? 'bg-red-100 border-red-500 text-red-700 dark:bg-red-900/30 dark:border-red-500 dark:text-red-400'
+                        : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-red-400 dark:hover:border-red-600';
+
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setValues((prev) => ({ ...prev, priority: p }))}
+                      className={`flex-1 rounded-lg border-2 py-2 text-sm font-medium capitalize transition-colors ${colour}`}
+                    >
+                      {p}
                     </button>
                   );
                 })}

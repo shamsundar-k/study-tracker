@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { itemsApi, type Item } from '../api/items';
-import type { Platform, ItemStatus } from '../schemas';
+import type { Platform, ItemStatus, Priority } from '../schemas';
 
 interface Props {
   item: Item;
@@ -29,6 +29,14 @@ function statusBadge(status: ItemStatus): string {
       return 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300';
     case 'done':
       return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
+  }
+}
+
+function priorityBadge(priority: Priority): { cls: string; label: string } {
+  switch (priority) {
+    case 'high':   return { cls: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',         label: 'High' };
+    case 'medium': return { cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300', label: 'Med' };
+    case 'low':    return { cls: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300', label: 'Low' };
   }
 }
 
@@ -92,6 +100,9 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge(item.status)}`}>
               {item.status}
             </span>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${priorityBadge(item.priority).cls}`}>
+              {priorityBadge(item.priority).label}
+            </span>
           </div>
         </div>
 
@@ -143,6 +154,11 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
         {item.hours !== undefined && <span>{item.hours}h logged</span>}
         {deadlineStr && <span>Due {deadlineStr}</span>}
+        {item.completedAt && (
+          <span className="text-blue-500 dark:text-blue-400">
+            Completed {new Date(item.completedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+        )}
       </div>
 
       {/* Tags */}

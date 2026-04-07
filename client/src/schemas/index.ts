@@ -16,6 +16,7 @@ export const loginSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1).optional(),
   email: z.string().email().optional(),
+  weeklyHoursGoal: z.number().min(0).optional(),
 });
 
 export const changePasswordSchema = z
@@ -34,10 +35,12 @@ export const changePasswordSchema = z
 export const platforms = ['Coursera', "O'Reilly", 'Frontend Masters'] as const;
 export const itemTypes = ['Course', 'Book', 'Video'] as const;
 export const itemStatuses = ['active', 'paused', 'done'] as const;
+export const priorities = ['low', 'medium', 'high'] as const;
 
 export type Platform = (typeof platforms)[number];
 export type ItemType = (typeof itemTypes)[number];
 export type ItemStatus = (typeof itemStatuses)[number];
+export type Priority = (typeof priorities)[number];
 
 export const platformTypeMap: Record<Platform, ItemType[]> = {
   Coursera: ['Course'],
@@ -56,6 +59,7 @@ const itemBaseSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
   note: z.string().optional(),
   archived: z.boolean().optional(),
+  priority: z.enum(priorities).optional().default('medium'),
 });
 
 export const itemCreateSchema = itemBaseSchema.refine(

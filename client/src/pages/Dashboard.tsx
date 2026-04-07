@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { itemsApi, type Item } from '../api/items';
 import { type Platform } from '../schemas';
+import { useAuth } from '../context/AuthContext';
 import ItemCard from '../components/ItemCard';
 import AddItemForm from '../components/AddItemForm';
 import GoalsPanel from '../components/GoalsPanel';
@@ -9,6 +10,7 @@ import SummaryMetrics from '../components/SummaryMetrics';
 import PlatformFilter from '../components/PlatformFilter';
 
 type Tab = 'active' | 'archived';
+type SortOption = 'updatedAt' | 'name' | 'progress' | 'deadline' | 'hours' | 'priority';
 
 export default function Dashboard() {
   const [items, setItems] = useState<Item[]>([]);
@@ -16,6 +18,8 @@ export default function Dashboard() {
   const [platformFilter, setPlatformFilter] = useState<Platform | 'All'>('All');
   const [showAddForm, setShowAddForm] = useState(false);
   const [tab, setTab] = useState<Tab>('active');
+  const { user } = useAuth();
+  const [sortBy, setSortBy] = useState<SortOption>('updatedAt');
 
   const fetchItems = async () => {
     try {
@@ -52,12 +56,29 @@ export default function Dashboard() {
   const filteredItems =
     platformFilter === 'All' ? tabItems : tabItems.filter((i) => i.platform === platformFilter);
 
+  const priorityOrder = { high: 0, medium: 1, low: 2 } as const;
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':     return a.name.localeCompare(b.name);
+      case 'progress': return b.progress - a.progress;
+      case 'hours':    return (b.hours ?? 0) - (a.hours ?? 0);
+      case 'priority': return priorityOrder[a.priority] - priorityOrder[b.priority];
+      case 'deadline': {
+        if (!a.deadline && !b.deadline) return 0;
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      }
+      default: return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Summary metrics */}
-        <SummaryMetrics items={items.filter((i) => !i.archived)} />
+        <SummaryMetrics items={items.filter((i) => !i.archived)} weeklyGoal={user?.weeklyHoursGoal} />
 
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -101,7 +122,24 @@ export default function Dashboard() {
               <AddItemForm onCreated={handleCreated} onCancel={() => setShowAddForm(false)} />
             )}
 
-            <PlatformFilter value={platformFilter} onChange={setPlatformFilter} />
+            <div className="flex items-center gap-3 flex-wrap">
+              <PlatformFilter value={platformFilter} onChange={setPlatformFilter} />
+              <div className="flex items-center gap-2 ml-auto shrink-0">
+                <label className="text-xs text-gray-500 dark:text-gray-400">Sort by</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="updatedAt">Recently updated</option>
+                  <option value="name">Name</option>
+                  <option value="progress">Progress</option>
+                  <option value="deadline">Deadline</option>
+                  <option value="hours">Hours logged</option>
+                  <option value="priority">Priority</option>
+                </select>
+              </div>
+            </div>
 
             {loading ? (
               <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
@@ -123,7 +161,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredItems.map((item) => (
+                {sortedItems.map((item) => (
                   <ItemCard
                     key={item._id}
                     item={item}

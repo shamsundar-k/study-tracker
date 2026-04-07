@@ -3,6 +3,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 export type Platform = 'Coursera' | "O'Reilly" | 'Frontend Masters';
 export type ItemType = 'Course' | 'Book' | 'Video';
 export type ItemStatus = 'active' | 'paused' | 'done';
+export type ItemPriority = 'low' | 'medium' | 'high';
 
 export interface IItem extends Document {
   userId: Types.ObjectId;
@@ -16,6 +17,8 @@ export interface IItem extends Document {
   tags: string[];
   note?: string;
   archived: boolean;
+  priority: ItemPriority;
+  completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +49,8 @@ const itemSchema = new Schema<IItem>(
     tags: { type: [String], default: [] },
     note: { type: String, trim: true },
     archived: { type: Boolean, default: false },
+    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+    completedAt: { type: Date },
   },
   { timestamps: true },
 );

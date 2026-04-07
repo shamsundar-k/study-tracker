@@ -68,14 +68,25 @@ router.put('/:id', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const updateData = {
+    const $set: Record<string, unknown> = {
       ...parsed.data,
       ...(parsed.data.deadline !== undefined && {
         deadline: parsed.data.deadline ? new Date(parsed.data.deadline) : undefined,
       }),
     };
+    const $unset: Record<string, unknown> = {};
 
-    const updated = await Item.findByIdAndUpdate(id, updateData, { new: true });
+    if (parsed.data.status === 'done' && item.status !== 'done') {
+      $set.completedAt = new Date();
+    } else if (parsed.data.status !== undefined && parsed.data.status !== 'done') {
+      $unset.completedAt = 1;
+    }
+
+    const updated = await Item.findByIdAndUpdate(
+      id,
+      Object.keys($unset).length ? { $set, $unset } : { $set },
+      { new: true },
+    );
     res.json({ item: updated });
   } catch (err) {
     console.error('Update item error:', err);

@@ -5,6 +5,7 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  weeklyHoursGoal?: number;
   createdAt?: string;
 }
 
@@ -21,7 +22,7 @@ export const authApi = {
   me: () =>
     api.get<{ user: User }>('/auth/me'),
 
-  updateProfile: (data: { name?: string; email?: string }) =>
+  updateProfile: (data: { name?: string; email?: string; weeklyHoursGoal?: number }) =>
     api.put<{ user: User }>('/auth/me', data),
 
   changePassword: (data: { currentPassword: string; newPassword: string }) =>

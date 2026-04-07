@@ -16,6 +16,7 @@ export const loginSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1).trim().optional(),
   email: z.string().email().toLowerCase().trim().optional(),
+  weeklyHoursGoal: z.number().min(0).optional(),
 });
 
 export const changePasswordSchema = z.object({
@@ -47,6 +48,7 @@ const itemBaseSchema = z.object({
   tags: z.array(z.string().trim()).optional().default([]),
   note: z.string().trim().optional(),
   archived: z.boolean().optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional().default('medium'),
 });
 
 export const itemCreateSchema = itemBaseSchema.refine(

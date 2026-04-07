@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import EditItem from './pages/EditItem';
+import Journal from './pages/Journal';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/items/:id/edit" element={<EditItem />} />
+                        <Route path="/journal" element={<Journal />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Routes>
                     </>

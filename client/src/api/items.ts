@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { ItemCreateInput, ItemUpdateInput, Platform, ItemType, ItemStatus } from '../schemas';
+import type { ItemCreateInput, ItemUpdateInput, Platform, ItemType, ItemStatus, Priority } from '../schemas';
 
 export interface Item {
   _id: string;
@@ -14,6 +14,8 @@ export interface Item {
   tags: string[];
   note?: string;
   archived: boolean;
+  priority: Priority;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

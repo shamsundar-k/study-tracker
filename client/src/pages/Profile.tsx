@@ -15,7 +15,7 @@ export default function Profile() {
   // Profile form
   const profileForm = useForm({
     schema: updateProfileSchema,
-    initial: { name: user?.name ?? '', email: user?.email ?? '' },
+    initial: { name: user?.name ?? '', email: user?.email ?? '', weeklyHoursGoal: user?.weeklyHoursGoal },
     onSubmit: async (data) => {
       await authApi.updateProfile(data);
       await refreshUser();
@@ -88,6 +88,22 @@ export default function Profile() {
               {profileForm.errors.email && (
                 <p className="text-xs text-red-500 mt-1">{profileForm.errors.email}</p>
               )}
+            </div>
+            <div>
+              <label className={labelCls}>Weekly hours goal</label>
+              <input
+                type="number"
+                name="weeklyHoursGoal"
+                min={0}
+                step={0.5}
+                value={profileForm.values.weeklyHoursGoal ?? ''}
+                onChange={profileForm.handleChange}
+                placeholder="e.g. 10"
+                className={inputCls}
+              />
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Hours you aim to study each week. Shown on the dashboard.
+              </p>
             </div>
             <button
               type="submit"

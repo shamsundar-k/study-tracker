@@ -100,7 +100,7 @@ router.get('/me', verifyToken, async (req: Request, res: Response): Promise<void
       res.status(404).json({ message: 'User not found' });
       return;
     }
-    res.json({ user: { _id: user._id, name: user.name, email: user.email, createdAt: user.createdAt } });
+    res.json({ user: { _id: user._id, name: user.name, email: user.email, weeklyHoursGoal: user.weeklyHoursGoal, createdAt: user.createdAt } });
   } catch (err) {
     console.error('Get me error:', err);
     res.status(500).json({ message: 'Internal server error' });
@@ -116,7 +116,7 @@ router.put('/me', verifyToken, async (req: Request, res: Response): Promise<void
   }
 
   try {
-    const { name, email } = parsed.data;
+    const { name, email, weeklyHoursGoal } = parsed.data;
 
     if (email) {
       const existing = await User.findOne({ email, _id: { $ne: req.user!.userId } });
@@ -128,7 +128,11 @@ router.put('/me', verifyToken, async (req: Request, res: Response): Promise<void
 
     const user = await User.findByIdAndUpdate(
       req.user!.userId,
-      { ...(name && { name }), ...(email && { email }) },
+      {
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(weeklyHoursGoal !== undefined && { weeklyHoursGoal }),
+      },
       { new: true },
     ).select('-passwordHash');
 
@@ -137,7 +141,7 @@ router.put('/me', verifyToken, async (req: Request, res: Response): Promise<void
       return;
     }
 
-    res.json({ user: { _id: user._id, name: user.name, email: user.email } });
+    res.json({ user: { _id: user._id, name: user.name, email: user.email, weeklyHoursGoal: user.weeklyHoursGoal } });
   } catch (err) {
     console.error('Update profile error:', err);
     res.status(500).json({ message: 'Internal server error' });
