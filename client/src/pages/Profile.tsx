@@ -1,0 +1,144 @@
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { authApi } from '../api/auth';
+import { updateProfileSchema, changePasswordSchema } from '../schemas';
+import { useForm } from '../hooks/useForm';
+
+export default function Profile() {
+  const { user, refreshUser } = useAuth();
+
+  const [profileMsg, setProfileMsg] = useState('');
+  const [profileErr, setProfileErr] = useState('');
+  const [pwMsg, setPwMsg] = useState('');
+  const [pwErr, setPwErr] = useState('');
+
+  // Profile form
+  const profileForm = useForm({
+    schema: updateProfileSchema,
+    initial: { name: user?.name ?? '', email: user?.email ?? '' },
+    onSubmit: async (data) => {
+      await authApi.updateProfile(data);
+      await refreshUser();
+      setProfileMsg('Profile updated');
+      setProfileErr('');
+    },
+    onError: (err) => {
+      setProfileErr((err as Error).message ?? 'Update failed');
+      setProfileMsg('');
+    },
+  });
+
+  // Password form
+  const pwForm = useForm({
+    schema: changePasswordSchema,
+    initial: { currentPassword: '', newPassword: '', confirmPassword: '' },
+    onSubmit: async (data) => {
+      await authApi.changePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      setPwMsg('Password changed');
+      setPwErr('');
+      pwForm.reset();
+    },
+    onError: (err) => {
+      setPwErr((err as Error).message ?? 'Password change failed');
+      setPwMsg('');
+    },
+  });
+
+  const inputCls =
+    'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
+  const labelCls = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 px-4 py-8">
+      <div className="max-w-lg mx-auto space-y-8">
+
+        {/* Profile */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-8 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Profile</h2>
+
+          {profileMsg && <p className="text-sm text-green-600 dark:text-green-400">{profileMsg}</p>}
+          {profileErr && <p className="text-sm text-red-600 dark:text-red-400">{profileErr}</p>}
+
+          <form onSubmit={profileForm.handleSubmit} className="space-y-4" noValidate>
+            <div>
+              <label className={labelCls}>Name</label>
+              <input
+                type="text"
+                name="name"
+                value={profileForm.values.name ?? ''}
+                onChange={profileForm.handleChange}
+                className={inputCls}
+              />
+              {profileForm.errors.name && (
+                <p className="text-xs text-red-500 mt-1">{profileForm.errors.name}</p>
+              )}
+            </div>
+            <div>
+              <label className={labelCls}>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={profileForm.values.email ?? ''}
+                onChange={profileForm.handleChange}
+                className={inputCls}
+              />
+              {profileForm.errors.email && (
+                <p className="text-xs text-red-500 mt-1">{profileForm.errors.email}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={profileForm.submitting}
+              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium px-6 py-2 text-sm transition-colors"
+            >
+              {profileForm.submitting ? 'Saving…' : 'Save profile'}
+            </button>
+          </form>
+        </div>
+
+        {/* Change password */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-8 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Change password</h2>
+
+          {pwMsg && <p className="text-sm text-green-600 dark:text-green-400">{pwMsg}</p>}
+          {pwErr && <p className="text-sm text-red-600 dark:text-red-400">{pwErr}</p>}
+
+          <form onSubmit={pwForm.handleSubmit} className="space-y-4" noValidate>
+            {(['currentPassword', 'newPassword', 'confirmPassword'] as const).map((field) => (
+              <div key={field}>
+                <label className={labelCls}>
+                  {field === 'currentPassword'
+                    ? 'Current password'
+                    : field === 'newPassword'
+                      ? 'New password'
+                      : 'Confirm new password'}
+                </label>
+                <input
+                  type="password"
+                  name={field}
+                  value={pwForm.values[field]}
+                  onChange={pwForm.handleChange}
+                  className={inputCls}
+                />
+                {pwForm.errors[field] && (
+                  <p className="text-xs text-red-500 mt-1">{pwForm.errors[field]}</p>
+                )}
+              </div>
+            ))}
+            <button
+              type="submit"
+              disabled={pwForm.submitting}
+              className="rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium px-6 py-2 text-sm transition-colors"
+            >
+              {pwForm.submitting ? 'Saving…' : 'Change password'}
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  );
+}
