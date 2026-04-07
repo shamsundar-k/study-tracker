@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
+import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
 
 import authRouter from './routes/auth.js';
 import itemsRouter from './routes/items.js';
@@ -10,14 +12,18 @@ import itemsRouter from './routes/items.js';
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// ESM has no __dirname global — reconstruct from import.meta.url
+// Compiled file: server/dist/index.js → ../../client/dist = client/dist from monorepo root
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+const clientDist = join(__dirname, '..', '..', 'client', 'dist');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(
-  cors({
-    origin: CLIENT_URL,
-    credentials: true,
-  }),
-);
+if (!isProduction) {
+  app.use(cors({ origin: CLIENT_URL, credentials: true }));
+}
 app.use(express.json());
 app.use(cookieParser());
 
@@ -25,8 +31,8 @@ app.use(cookieParser());
 app.use('/api/auth', authRouter);
 app.use('/api/items', itemsRouter);
 
-// ── Root status page ─────────────────────────────────────────────────────────
-app.get('/', (_req, res) => {
+// ── Root status page (dev only — production serves React index.html) ─────────
+if (!isProduction) app.get('/', (_req, res) => {
   const db = mongoose.connection.readyState;
   const dbStatus: Record<number, string> = {
     0: 'disconnected',
@@ -131,6 +137,14 @@ app.get('/health', (_req, res) => {
     db: db === 1 ? 'connected' : 'disconnected',
   });
 });
+
+// ── Production: serve React build + catch-all for React Router ────────────────
+if (isProduction) {
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => {
+    res.sendFile(join(clientDist, 'index.html'));
+  });
+}
 
 // ── DB + Server ───────────────────────────────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI ?? '';
