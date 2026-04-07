@@ -106,6 +106,10 @@ app.get('/', (_req, res) => {
         </td>
       </tr>
       <tr>
+        <td>CORS origin</td>
+        <td style="word-break:break-all">${CLIENT_URL}</td>
+      </tr>
+      <tr>
         <td>API base</td>
         <td>/api/auth &amp; /api/items</td>
       </tr>
