@@ -3,8 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { fileURLToPath } from 'url';
-import { join, dirname } from 'path';
+import { join } from 'path';
 
 import authRouter from './routes/auth.js';
 import itemsRouter from './routes/items.js';
@@ -14,10 +13,7 @@ const PORT = process.env.PORT ?? 3001;
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production';
 
-// ESM has no __dirname global — reconstruct from import.meta.url
 // Compiled file: server/dist/index.js → ../../client/dist = client/dist from monorepo root
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = dirname(__filename);
 const clientDist = join(__dirname, '..', '..', 'client', 'dist');
 
 // ── Middleware ────────────────────────────────────────────────────────────────
