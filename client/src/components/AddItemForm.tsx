@@ -13,6 +13,7 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
   const { user } = useAuth();
   const allPlatforms = [...platforms, ...(user?.customPlatforms ?? [])];
   const [serverError, setServerError] = useState('');
+  const [tagInput, setTagInput] = useState('');
 
   const { values, errors, handleChange, handleSubmit, submitting, setValues } =
     useForm<ItemCreateInput>({
@@ -156,11 +157,12 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
           <input
             type="text"
             placeholder="React, TypeScript, Hooks"
-            value={(values.tags ?? []).join(', ')}
-            onChange={(e) =>
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onBlur={() =>
               setValues((prev) => ({
                 ...prev,
-                tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
+                tags: tagInput.split(',').map((t) => t.trim()).filter(Boolean),
               }))
             }
             className={inputCls}
