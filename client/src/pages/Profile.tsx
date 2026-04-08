@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
-import { updateProfileSchema, changePasswordSchema } from '../schemas';
+import { updateProfileSchema, changePasswordSchema, platforms } from '../schemas';
 import { useForm } from '../hooks/useForm';
 
 export default function Profile() {
@@ -11,6 +11,9 @@ export default function Profile() {
   const [profileErr, setProfileErr] = useState('');
   const [pwMsg, setPwMsg] = useState('');
   const [pwErr, setPwErr] = useState('');
+  const [newPlatform, setNewPlatform] = useState('');
+  const [platformErr, setPlatformErr] = useState('');
+  const [platformMsg, setPlatformMsg] = useState('');
 
   // Profile form
   const profileForm = useForm({
@@ -46,6 +49,38 @@ export default function Profile() {
       setPwMsg('');
     },
   });
+
+  const customPlatforms = user?.customPlatforms ?? [];
+  const builtinSet = new Set<string>(platforms);
+
+  const handleAddPlatform = async () => {
+    const name = newPlatform.trim();
+    if (!name) return;
+    if (builtinSet.has(name) || customPlatforms.includes(name)) {
+      setPlatformErr('Platform already exists');
+      return;
+    }
+    try {
+      await authApi.updateProfile({ customPlatforms: [...customPlatforms, name] });
+      await refreshUser();
+      setNewPlatform('');
+      setPlatformErr('');
+      setPlatformMsg('Platform added');
+      setTimeout(() => setPlatformMsg(''), 2000);
+    } catch {
+      setPlatformErr('Failed to add platform');
+    }
+  };
+
+  const handleRemovePlatform = async (platform: string) => {
+    try {
+      await authApi.updateProfile({ customPlatforms: customPlatforms.filter((p) => p !== platform) });
+      await refreshUser();
+      setPlatformMsg('');
+    } catch {
+      setPlatformErr('Failed to remove platform');
+    }
+  };
 
   const inputCls =
     'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
@@ -113,6 +148,52 @@ export default function Profile() {
               {profileForm.submitting ? 'Saving…' : 'Save profile'}
             </button>
           </form>
+        </div>
+
+        {/* Learning Platforms */}
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow p-8 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Learning Platforms</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Built-in: {[...platforms].join(', ')}
+          </p>
+
+          {platformMsg && <p className="text-sm text-green-600 dark:text-green-400">{platformMsg}</p>}
+          {platformErr && <p className="text-sm text-red-600 dark:text-red-400">{platformErr}</p>}
+
+          {customPlatforms.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {customPlatforms.map((p) => (
+                <span key={p} className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1 text-sm">
+                  {p}
+                  <button
+                    onClick={() => void handleRemovePlatform(p)}
+                    className="text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-100 leading-none"
+                    aria-label={`Remove ${p}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newPlatform}
+              onChange={(e) => { setNewPlatform(e.target.value); setPlatformErr(''); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void handleAddPlatform(); } }}
+              placeholder="e.g. LinkedIn Learning"
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={() => void handleAddPlatform()}
+              className="shrink-0 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 text-sm transition-colors"
+            >
+              Add
+            </button>
+          </div>
         </div>
 
         {/* Change password */}

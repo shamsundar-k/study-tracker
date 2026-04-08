@@ -17,6 +17,7 @@ export const updateProfileSchema = z.object({
   name: z.string().min(1).optional(),
   email: z.string().email().optional(),
   weeklyHoursGoal: z.number().min(0).optional(),
+  customPlatforms: z.array(z.string().min(1)).optional(),
 });
 
 export const changePasswordSchema = z
@@ -50,9 +51,14 @@ export const platformTypeMap: Record<Platform, ItemType[]> = {
   YouTube: ['Video'],
 };
 
+// Returns allowed types for a platform; custom platforms allow all types.
+export function getTypesForPlatform(platform: string): ItemType[] {
+  return platformTypeMap[platform as Platform] ?? [...itemTypes];
+}
+
 const itemBaseSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  platform: z.enum(platforms),
+  platform: z.string().min(1, 'Platform is required'),
   type: z.enum(itemTypes),
   progress: z.number().int().min(0).max(100).default(0),
   hours: z.number().min(0).optional(),
@@ -65,7 +71,10 @@ const itemBaseSchema = z.object({
 });
 
 export const itemCreateSchema = itemBaseSchema.refine(
-  (data) => platformTypeMap[data.platform].includes(data.type),
+  (data) => {
+    const allowed = platformTypeMap[data.platform as Platform];
+    return !allowed || allowed.includes(data.type);
+  },
   (data) => ({
     message: `"${data.type}" is not available on ${data.platform}`,
     path: ['type'],
@@ -75,7 +84,8 @@ export const itemCreateSchema = itemBaseSchema.refine(
 export const itemUpdateSchema = itemBaseSchema.partial().refine(
   (data) => {
     if (data.platform && data.type) {
-      return platformTypeMap[data.platform].includes(data.type);
+      const allowed = platformTypeMap[data.platform as Platform];
+      return !allowed || allowed.includes(data.type);
     }
     return true;
   },
