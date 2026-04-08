@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import { Item } from '../models/Item.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 import {
   registerSchema,
@@ -123,6 +124,24 @@ router.put('/me', verifyToken, async (req: Request, res: Response): Promise<void
       if (existing) {
         res.status(409).json({ message: 'Email already in use' });
         return;
+      }
+    }
+
+    if (customPlatforms !== undefined) {
+      const currentUser = await User.findById(req.user!.userId).select('customPlatforms');
+      const currentCustomPlatforms = currentUser?.customPlatforms ?? [];
+      const removedPlatforms = currentCustomPlatforms.filter((p) => !customPlatforms.includes(p));
+
+      if (removedPlatforms.length > 0) {
+        for (const platform of removedPlatforms) {
+          const hasItems = await Item.exists({ userId: req.user!.userId, platform });
+          if (hasItems) {
+            res.status(409).json({
+              message: `Cannot delete "${platform}": remove all learning items using this platform first.`,
+            });
+            return;
+          }
+        }
       }
     }
 

@@ -30,7 +30,6 @@ const itemSchema = new Schema<IItem>(
     platform: {
       type: String,
       required: true,
-      enum: ['Coursera', "O'Reilly", 'Frontend Masters', 'Udemy', 'YouTube'],
     },
     type: {
       type: String,

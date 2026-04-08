@@ -76,9 +76,10 @@ export default function Profile() {
     try {
       await authApi.updateProfile({ customPlatforms: customPlatforms.filter((p) => p !== platform) });
       await refreshUser();
+      setPlatformErr('');
       setPlatformMsg('');
-    } catch {
-      setPlatformErr('Failed to remove platform');
+    } catch (err) {
+      setPlatformErr((err as Error).message ?? 'Failed to remove platform');
     }
   };
 
