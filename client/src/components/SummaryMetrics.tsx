@@ -2,10 +2,11 @@ import type { Item } from '../api/items';
 
 interface Props {
   items: Item[];
+  allItems?: Item[];
   weeklyGoal?: number;
 }
 
-export default function SummaryMetrics({ items, weeklyGoal }: Props) {
+export default function SummaryMetrics({ items, allItems, weeklyGoal }: Props) {
   const total = items.length;
   const done = items.filter((i) => i.status === 'done').length;
   const totalHours = items.reduce((sum, i) => sum + (i.hours ?? 0), 0);
@@ -13,12 +14,14 @@ export default function SummaryMetrics({ items, weeklyGoal }: Props) {
     total > 0 ? Math.round(items.reduce((sum, i) => sum + i.progress, 0) / total) : 0;
 
   // This week = Monday 00:00 → now
+  // Use allItems so archived items still count toward the weekly goal
+  const weeklyItems = allItems ?? items;
   const now = new Date();
   const day = now.getDay();
   const monday = new Date(now);
   monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
   monday.setHours(0, 0, 0, 0);
-  const weeklyHours = items
+  const weeklyHours = weeklyItems
     .filter((i) => new Date(i.updatedAt) >= monday)
     .reduce((sum, i) => sum + (i.hours ?? 0), 0);
 
