@@ -1,12 +1,15 @@
 import { platforms, type Platform } from '../schemas';
+import type { Item } from '../api/items';
 
 interface Props {
   value: Platform | 'All';
   onChange: (value: Platform | 'All') => void;
+  items: Item[];
 }
 
-export default function PlatformFilter({ value, onChange }: Props) {
-  const options: (Platform | 'All')[] = ['All', ...platforms];
+export default function PlatformFilter({ value, onChange, items }: Props) {
+  const used = platforms.filter((p) => items.some((i) => i.platform === p));
+  const options: (Platform | 'All')[] = ['All', ...used];
 
   return (
     <div className="flex flex-wrap gap-2">
