@@ -9,7 +9,6 @@ interface Props {
 export default function SummaryMetrics({ items, allItems, weeklyGoal }: Props) {
   const total = items.length;
   const done = items.filter((i) => i.status === 'done').length;
-  const totalHours = items.reduce((sum, i) => sum + (i.hours ?? 0), 0);
   const avgProgress =
     total > 0 ? Math.round(items.reduce((sum, i) => sum + i.progress, 0) / total) : 0;
 
@@ -32,11 +31,10 @@ export default function SummaryMetrics({ items, allItems, weeklyGoal }: Props) {
     { label: 'Total items', value: total },
     { label: 'Completed', value: done },
     { label: 'Avg. progress', value: `${avgProgress}%` },
-    { label: 'Hours logged', value: totalHours.toFixed(1) },
   ];
 
   return (
-    <div className={`grid gap-4 ${showWeekly ? 'grid-cols-2 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'}`}>
+    <div className={`grid gap-4 ${showWeekly ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3'}`}>
       {stats.map((s) => (
         <div
           key={s.label}

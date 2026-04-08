@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   weeklyHoursGoal?: number;
+  customPlatforms?: string[];
   createdAt?: string;
 }
 
@@ -22,7 +23,7 @@ export const authApi = {
   me: () =>
     api.get<{ user: User }>('/auth/me'),
 
-  updateProfile: (data: { name?: string; email?: string; weeklyHoursGoal?: number }) =>
+  updateProfile: (data: { name?: string; email?: string; weeklyHoursGoal?: number; customPlatforms?: string[] }) =>
     api.put<{ user: User }>('/auth/me', data),
 
   changePassword: (data: { currentPassword: string; newPassword: string }) =>

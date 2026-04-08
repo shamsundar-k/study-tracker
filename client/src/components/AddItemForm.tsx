@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { itemsApi, type Item } from '../api/items';
-import { itemCreateSchema, platforms, itemStatuses, priorities, platformTypeMap, type ItemCreateInput } from '../schemas';
+import { itemCreateSchema, platforms, itemStatuses, priorities, getTypesForPlatform, type ItemCreateInput } from '../schemas';
 import { useForm } from '../hooks/useForm';
+import { useAuth } from '../context/AuthContext';
 
 interface Props {
   onCreated: (item: Item) => void;
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function AddItemForm({ onCreated, onCancel }: Props) {
+  const { user } = useAuth();
+  const allPlatforms = [...platforms, ...(user?.customPlatforms ?? [])];
   const [serverError, setServerError] = useState('');
 
   const { values, errors, handleChange, handleSubmit, submitting, setValues } =
@@ -37,15 +40,15 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
 
   // When platform changes, reset type to the first valid option
   const handlePlatformChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const platform = e.target.value as ItemCreateInput['platform'];
+    const platform = e.target.value;
     setValues((prev) => ({
       ...prev,
       platform,
-      type: platformTypeMap[platform][0],
+      type: getTypesForPlatform(platform)[0],
     }));
   };
 
-  const availableTypes = platformTypeMap[values.platform];
+  const availableTypes = getTypesForPlatform(values.platform);
 
   const inputCls =
     'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
@@ -79,7 +82,7 @@ export default function AddItemForm({ onCreated, onCancel }: Props) {
           <div>
             <label className={labelCls}>Platform *</label>
             <select name="platform" value={values.platform} onChange={handlePlatformChange} className={inputCls}>
-              {platforms.map((p) => <option key={p} value={p}>{p}</option>)}
+              {allPlatforms.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
           <div>

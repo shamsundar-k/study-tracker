@@ -103,7 +103,7 @@ export default function Dashboard() {
               {(['active', 'archived'] as Tab[]).map((t) => (
                 <button
                   key={t}
-                  onClick={() => { setTab(t); setShowAddForm(false); }}
+                  onClick={() => { setTab(t); setShowAddForm(false); setPlatformFilter('All'); }}
                   className={`px-4 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
                     tab === t
                       ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
@@ -123,7 +123,7 @@ export default function Dashboard() {
             )}
 
             <div className="flex items-center gap-3 flex-wrap">
-              <PlatformFilter value={platformFilter} onChange={setPlatformFilter} />
+              <PlatformFilter value={platformFilter} onChange={setPlatformFilter} items={tabItems} />
               <div className="flex items-center gap-2 ml-auto shrink-0">
                 <label className="text-xs text-gray-500 dark:text-gray-400">Sort by</label>
                 <select

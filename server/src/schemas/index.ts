@@ -17,6 +17,7 @@ export const updateProfileSchema = z.object({
   name: z.string().min(1).trim().optional(),
   email: z.string().email().toLowerCase().trim().optional(),
   weeklyHoursGoal: z.number().min(0).optional(),
+  customPlatforms: z.array(z.string().min(1).trim()).optional(),
 });
 
 export const changePasswordSchema = z.object({
@@ -26,7 +27,7 @@ export const changePasswordSchema = z.object({
 
 // ── Item schemas ──────────────────────────────────────────────────────────────
 
-const platforms = ['Coursera', "O'Reilly", 'Frontend Masters'] as const;
+const platforms = ['Coursera', "O'Reilly", 'Frontend Masters', 'Udemy', 'YouTube'] as const;
 const itemTypes = ['Course', 'Book', 'Video'] as const;
 const itemStatuses = ['active', 'paused', 'done'] as const;
 
@@ -35,11 +36,13 @@ const platformTypeMap: Record<(typeof platforms)[number], (typeof itemTypes)[num
   Coursera: ['Course'],
   "O'Reilly": ['Course', 'Book', 'Video'],
   'Frontend Masters': ['Course'],
+  Udemy: ['Course', 'Video'],
+  YouTube: ['Video'],
 };
 
 const itemBaseSchema = z.object({
   name: z.string().min(1, 'Name is required').trim(),
-  platform: z.enum(platforms),
+  platform: z.string().min(1, 'Platform is required'),
   type: z.enum(itemTypes),
   progress: z.number().int().min(0).max(100).default(0),
   hours: z.number().min(0).optional(),
@@ -52,7 +55,10 @@ const itemBaseSchema = z.object({
 });
 
 export const itemCreateSchema = itemBaseSchema.refine(
-  (data) => platformTypeMap[data.platform].includes(data.type),
+  (data) => {
+    const allowed = platformTypeMap[data.platform as (typeof platforms)[number]];
+    return !allowed || allowed.includes(data.type);
+  },
   (data) => ({
     message: `Type "${data.type}" is not valid for platform "${data.platform}"`,
     path: ['type'],
@@ -62,7 +68,8 @@ export const itemCreateSchema = itemBaseSchema.refine(
 export const itemUpdateSchema = itemBaseSchema.partial().refine(
   (data) => {
     if (data.platform && data.type) {
-      return platformTypeMap[data.platform as (typeof platforms)[number]].includes(data.type);
+      const allowed = platformTypeMap[data.platform as (typeof platforms)[number]];
+      return !allowed || allowed.includes(data.type);
     }
     return true;
   },

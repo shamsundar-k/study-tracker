@@ -4,17 +4,19 @@ import { itemsApi, type Item } from '../api/items';
 import {
   itemUpdateSchema,
   platforms,
-  itemTypes,
   itemStatuses,
   priorities,
-  platformTypeMap,
+  getTypesForPlatform,
   type ItemUpdateInput,
 } from '../schemas';
 import { useForm } from '../hooks/useForm';
+import { useAuth } from '../context/AuthContext';
 
 export default function EditItem() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const allPlatforms = [...platforms, ...(user?.customPlatforms ?? [])];
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState('');
@@ -86,7 +88,7 @@ export default function EditItem() {
     );
   }
 
-  const availableTypes = values.platform ? platformTypeMap[values.platform] : itemTypes;
+  const availableTypes = getTypesForPlatform(values.platform ?? '');
 
   const inputCls =
     'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ' +
@@ -156,7 +158,7 @@ export default function EditItem() {
                   onChange={handleChange}
                   className={inputCls}
                 >
-                  {platforms.map((p) => (
+                  {allPlatforms.map((p) => (
                     <option key={p} value={p}>{p}</option>
                   ))}
                 </select>
