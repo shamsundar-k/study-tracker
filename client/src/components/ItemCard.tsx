@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { itemsApi, type Item } from '../api/items';
-import type { Platform, ItemStatus, Priority } from '../schemas';
+import type { ItemStatus, Priority } from '../schemas';
 
 interface Props {
   item: Item;
