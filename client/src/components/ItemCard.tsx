@@ -18,6 +18,10 @@ function platformBadge(platform: Platform): string {
       return 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300';
     case 'Frontend Masters':
       return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
+    case 'Udemy':
+      return 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300';
+    case 'YouTube':
+      return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
   }
 }
 

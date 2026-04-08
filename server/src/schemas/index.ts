@@ -26,7 +26,7 @@ export const changePasswordSchema = z.object({
 
 // ── Item schemas ──────────────────────────────────────────────────────────────
 
-const platforms = ['Coursera', "O'Reilly", 'Frontend Masters'] as const;
+const platforms = ['Coursera', "O'Reilly", 'Frontend Masters', 'Udemy', 'YouTube'] as const;
 const itemTypes = ['Course', 'Book', 'Video'] as const;
 const itemStatuses = ['active', 'paused', 'done'] as const;
 
@@ -35,6 +35,8 @@ const platformTypeMap: Record<(typeof platforms)[number], (typeof itemTypes)[num
   Coursera: ['Course'],
   "O'Reilly": ['Course', 'Book', 'Video'],
   'Frontend Masters': ['Course'],
+  Udemy: ['Course', 'Video'],
+  YouTube: ['Video'],
 };
 
 const itemBaseSchema = z.object({

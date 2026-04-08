@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-export type Platform = 'Coursera' | "O'Reilly" | 'Frontend Masters';
+export type Platform = 'Coursera' | "O'Reilly" | 'Frontend Masters' | 'Udemy' | 'YouTube';
 export type ItemType = 'Course' | 'Book' | 'Video';
 export type ItemStatus = 'active' | 'paused' | 'done';
 export type ItemPriority = 'low' | 'medium' | 'high';
@@ -30,7 +30,7 @@ const itemSchema = new Schema<IItem>(
     platform: {
       type: String,
       required: true,
-      enum: ['Coursera', "O'Reilly", 'Frontend Masters'],
+      enum: ['Coursera', "O'Reilly", 'Frontend Masters', 'Udemy', 'YouTube'],
     },
     type: {
       type: String,
